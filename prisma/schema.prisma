@@ -1,0 +1,121 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL")
+}
+
+enum Role {
+  client
+  freelancer
+}
+
+enum KycStatus {
+  pending
+  approved
+  rejected
+}
+
+enum JobStatus {
+  open
+  funded
+  in_progress
+  approved
+  released
+  closed
+}
+
+enum MilestoneStatus {
+  pending
+  submitted
+  approved
+}
+
+enum TxType {
+  fund
+  release
+  yield_deposit
+  yield_withdraw
+}
+
+model User {
+  id             String    @id @default(cuid())
+  role           Role
+  country        String    // "BO" | "NG"
+  pollarWalletId String?   @unique
+  walletAddress  String?   // G...
+  kycStatus      KycStatus @default(pending)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  jobsAsClient     Job[] @relation("ClientJobs")
+  jobsAsFreelancer Job[] @relation("FreelancerJobs")
+}
+
+model Job {
+  id            String    @id @default(cuid())
+  clientId      String
+  freelancerId  String?
+  title         String
+  description   String    @db.Text
+  amountBOB     Decimal   @db.Decimal(12, 2)
+  amountUSDC    Decimal?  @db.Decimal(12, 2)
+  status        JobStatus @default(open)
+  escrowWalletId String?
+  yieldEnabled  Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  client     User @relation("ClientJobs", fields: [clientId], references: [id])
+  freelancer User? @relation("FreelancerJobs", fields: [freelancerId], references: [id])
+
+  milestones   Milestone[]
+  transactions EscrowTransaction[]
+
+  @@index([clientId])
+  @@index([freelancerId])
+  @@index([status])
+}
+
+model Milestone {
+  id          String          @id @default(cuid())
+  jobId       String
+  title       String
+  description String?         @db.Text
+  amountShare Decimal?        @db.Decimal(12,2)
+  status      MilestoneStatus @default(pending)
+  order       Int             @default(0)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  job Job @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@index([jobId])
+}
+
+model EscrowTransaction {
+  id        String   @id @default(cuid())
+  jobId     String
+  pollarTxId String?  // real SDK tx id
+  amount    Decimal  @db.Decimal(12, 2)
+  currency  String   // BOB | USDC | XLM
+  type      TxType
+  rawRequest  Json?  // audit log req
+  rawResponse Json?  // audit log res
+  createdAt DateTime @default(now())
+
+  job Job @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@index([jobId])
+  @@index([type])
+}
+
+model AppLog {
+  id        String   @id @default(cuid())
+  action    String   // fund_attempt | release_attempt | kyc_trigger etc
+  jobId     String?
+  payload   Json?
+  createdAt DateTime @default(now())
+}
