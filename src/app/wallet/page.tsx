@@ -8,11 +8,10 @@ import { getState, type JobState } from "@/lib/api";
 
 export default function WalletPage() {
   const { wallet, isAuthenticated, walletBalance, refreshWalletBalance, openWalletBalanceModal, openRampModal, txHistory, openTxHistoryModal } = usePollar();
-  const [user, setUser] = useState<{ role: "client" | "freelancer"; country: string } | null>(null);
   const [jobs, setJobs] = useState<JobState[]>([]);
 
   useEffect(() => {
-    getState().then((s) => { setUser(s.user ? { role: s.user.role, country: s.user.country } : null); setJobs(s.jobs); }).catch(() => { setUser(null); setJobs([]); });
+    getState().then((s) => { setJobs(s.jobs); }).catch(() => { setJobs([]); });
   }, []);
   useEffect(() => { if (isAuthenticated) refreshWalletBalance(); }, [isAuthenticated, refreshWalletBalance]);
 

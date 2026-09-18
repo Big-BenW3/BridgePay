@@ -34,6 +34,25 @@ export async function GET() {
     const escrowWalletId = process.env.ESCROW_WALLET_ID;
     const escrowConfigured = escrowWalletId && escrowWalletId !== "..." && !escrowWalletId.includes("...") && escrowWalletId.startsWith("G");
 
+    // Real on-chain balances of the designated escrow account (Horizon). null = unavailable.
+    let escrowBalance: { asset: string; balance: string }[] | null = null;
+    if (escrowConfigured && escrowWalletId) {
+      try {
+        const net = (process.env.POLLAR_NETWORK || "testnet") as "testnet" | "mainnet";
+        const eb = await client.getWalletBalance(escrowWalletId, net);
+        const rec = eb as unknown as Record<string, unknown>;
+        const raw = rec.balances ?? (rec.data as Record<string, unknown> | undefined)?.balances ?? [];
+        if (Array.isArray(raw)) {
+          escrowBalance = (raw as { code?: string; asset?: string; asset_code?: string; balance?: string | number }[]).map((b) => ({
+            asset: b.asset ?? b.code ?? b.asset_code ?? "unknown",
+            balance: String(b.balance ?? "0"),
+          }));
+        }
+      } catch {
+        escrowBalance = null;
+      }
+    }
+
     return NextResponse.json({
       ok: true,
       wallet: wallet ? { address: wallet.address } : null,
@@ -41,6 +60,7 @@ export async function GET() {
       balance,
       escrowConfigured,
       escrowWalletId: escrowConfigured ? escrowWalletId : null,
+      escrowBalance,
     });
   } catch (error) {
     console.error("[API] /api/pollar GET error:", error);
@@ -78,8 +98,8 @@ export async function POST(req: Request) {
           amount: new Prisma.Decimal(amount),
           currency: "USDC",
           type: "release",
-          rawRequest: body as any,
-          rawResponse: r as any,
+          rawRequest: body as Prisma.InputJsonValue,
+          rawResponse: r as Prisma.InputJsonValue,
         },
       });
 

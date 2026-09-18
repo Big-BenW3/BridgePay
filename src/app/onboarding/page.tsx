@@ -4,30 +4,23 @@ import Link from "next/link";
 import { usePollar, WalletButton } from "@pollar/react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { upsertUser, pushLog, type UserState, getState } from "@/lib/api";
+import { upsertUser, pushLog } from "@/lib/api";
 
 export default function OnboardingPage() {
-  const { isAuthenticated, wallet, openKycModal, openLoginModal, logout } = usePollar();
+  const { isAuthenticated, wallet, openKycModal, logout } = usePollar();
   const [role, setRole] = useState<"client" | "freelancer">("client");
-  const [user, setUser] = useState<UserState>(null);
-
-  useEffect(() => {
-    getState().then((s) => setUser(s.user)).catch(() => setUser(null));
-  }, []);
 
   useEffect(() => {
     if (isAuthenticated && wallet?.address) {
       pushLog("wallet_connected", `${wallet.address.slice(0, 10)}…`, { address: wallet.address });
-      const newUser = {
+      upsertUser({
         id: wallet.address,
         role,
         country: role === "client" ? "BO" : "NG",
         pollarWalletId: wallet.address,
         walletAddress: wallet.address,
         kycStatus: "pending" as const,
-      };
-      upsertUser(newUser);
-      setUser(newUser);
+      });
     }
   }, [isAuthenticated, wallet, role]);
 
@@ -64,13 +57,9 @@ export default function OnboardingPage() {
             <div className="core p-6">
               <h3 className="font-semibold text-sm">Pollar wallet</h3>
               <p className="text-xs text-[#6b7589] mt-1">Real Stellar wallet via Pollar — no seed shown, fees sponsored.</p>
-              <div className="mt-4 p-4 rounded-[16px] bg-[#f1f5f9] border border-[#d8e0ea]">
+              <div className="mt-4">
                 <WalletButton />
-                {!isAuthenticated ? (
-                  <Button size="sm" className="mt-3" onClick={() => openLoginModal()}>
-                    Connect wallet →
-                  </Button>
-                ) : (
+                {isAuthenticated && (
                   <div className="mt-3 flex items-center gap-2 flex-wrap">
                     <p className="font-mono text-xs bg-white border border-[#d8e0ea] rounded-full px-3 py-1.5 flex-1 truncate">{wallet?.address}</p>
                     <Button size="sm" variant="ghost" onClick={() => logout()}>
@@ -83,7 +72,7 @@ export default function OnboardingPage() {
               {isAuthenticated && (
                 <div className="mt-5 rounded-[16px] bg-white border border-[#d8e0ea] p-4">
                   <p className="text-sm font-medium">Verify identity</p>
-                  <p className="text-xs text-[#6b7589] mt-1">Required before funding. One tap opens Pollar's KYC.</p>
+                  <p className="text-xs text-[#6b7589] mt-1">Required before funding. One tap opens Pollar&apos;s KYC.</p>
                   <div className="flex gap-2 mt-3">
                     <Button size="sm" onClick={() => openKycModal({ country: role === "client" ? "BO" : "NG", level: "basic" })}>
                       Verify

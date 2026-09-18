@@ -43,7 +43,7 @@ export default function LandingPage() {
             </div>
             <div className="absolute inset-0 -z-10 orb-violet opacity-30" />
           </BentoCard>
-          <p className="text-center text-xs text-[#6b7589] mt-3">Real Pollar payment • <code className="bg-[#f1f5f9] px-1 py-0.5 rounded">runTx('payment')</code> • Hash in Monitor → Transactions</p>
+          <p className="text-center text-xs text-[#6b7589] mt-3">Real Pollar payment • <code className="bg-[#f1f5f9] px-1 py-0.5 rounded">runTx(&apos;payment&apos;)</code> • Hash in Monitor → Transactions</p>
         </div>
       </section>
 
@@ -57,8 +57,8 @@ export default function LandingPage() {
               A designer in La Paz <span className="text-[#862fe7]">pays</span>.<br/>A developer in Lagos <span className="text-[#862fe7]">waits</span>.
             </h2>
             <div className="mt-6 space-y-4 text-[15px] leading-relaxed text-[#3f4654] max-w-[520px]">
-              <p>Remittance fees take <span className="font-semibold text-[#111827]">12%</span> — a week's work. Settlement drags <span className="font-semibold text-[#111827]">6 days</span> across banks, with no way to hold funds safely for milestones.</p>
-              <p>Clients in Bolivia have Pollar's live BOB on-ramp. Freelancers in Nigeria have the skill. The corridor between them is <span className="underline decoration-[#ad6df4] decoration-2 underline-offset-4">empty</span> — no escrow, no protection, no instant USDC.</p>
+              <p>Remittance fees take <span className="font-semibold text-[#111827]">12%</span> — a week&apos;s work. Settlement drags <span className="font-semibold text-[#111827]">6 days</span> across banks, with no way to hold funds safely for milestones.</p>
+              <p>Clients in Bolivia have Pollar&apos;s live BOB on-ramp. Freelancers in Nigeria have the skill. The corridor between them is <span className="underline decoration-[#ad6df4] decoration-2 underline-offset-4">empty</span> — no escrow, no protection, no instant USDC.</p>
             </div>
             <div className="mt-6 flex items-center gap-3 text-xs font-semibold">
               <span className="px-3 py-1.5 rounded-full bg-white border border-[#d8e0ea]">High fees</span>
@@ -83,7 +83,7 @@ export default function LandingPage() {
               <div className="h-px bg-[#d8e0ea]" />
               <div className="flex items-start gap-3">
                 <span className="mt-1 w-2 h-2 rounded-full bg-[#862fe7] shrink-0" />
-                <p className="text-sm text-[#111827] leading-relaxed"><span className="font-semibold">BridgePay adds the missing half:</span> escrow held on Stellar, release is <code className="bg-[#f1f5f9] px-1 rounded">runTx('payment')</code> — instant, sponsored, auditable. Not a demo ramp.</p>
+                <p className="text-sm text-[#111827] leading-relaxed"><span className="font-semibold">BridgePay adds the missing half:</span> escrow held on Stellar, release is <code className="bg-[#f1f5f9] px-1 rounded">runTx(&apos;payment&apos;)</code> — instant, sponsored, auditable. Not a demo ramp.</p>
               </div>
             </div>
           </div>
