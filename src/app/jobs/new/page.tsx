@@ -9,8 +9,9 @@ import { getState, pushLog, upsertJob, type UserState, type JobState } from "@/l
 export default function NewJobPage() {
   const router = useRouter();
   const [user, setUser] = useState<UserState>(null);
+  const [ready, setReady] = useState(false);
   useEffect(() => {
-    getState().then((s) => setUser(s.user)).catch(() => setUser(null));
+    getState().then((s) => setUser(s.user)).catch(() => setUser(null)).finally(() => setReady(true));
   }, []);
   const [title, setTitle] = useState("Landing page for NGO");
   const [desc, setDesc] = useState("3-page marketing site + CMS, responsive, handover docs.");
@@ -19,7 +20,7 @@ export default function NewJobPage() {
   const [mInput, setMInput] = useState("");
 
   const create = async () => {
-    if (!user || user.role !== "client") { alert("Switch to Client role in /onboarding to create jobs (demo guard)"); return; }
+    if (!user || user.role !== "client") return;
     if (!title || !amount) return alert("Title & amount required");
     const job: JobState = {
       id: Math.random().toString(36).slice(2, 9),
@@ -37,13 +38,36 @@ export default function NewJobPage() {
     router.push(`/jobs/${job.id}`);
   };
 
+  if (!ready) {
+    return (
+      <div className="min-h-screen grid place-items-center bg-[#f1f5f9] p-6">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 rounded-full border-[3px] border-[#d8e0ea] border-t-[#862fe7] animate-spin" />
+          <p className="text-sm text-[#6b7589]">Loading…</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user || user.role !== "client") {
+    return (
+      <div className="min-h-screen grid place-items-center bg-[#f1f5f9] p-6">
+        <Card className="max-w-[360px] w-full text-center">
+          <h2 className="font-display text-[20px] font-semibold">Clients only</h2>
+          <p className="text-sm text-[#6b7589] mt-2">Freelancers can&apos;t create jobs — they submit milestones on jobs clients post.</p>
+          <Link href="/onboarding" className="inline-block mt-4"><Button>Switch role →</Button></Link>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#f1f5f9]">
       <div className="mx-auto max-w-[720px] px-6 py-8">
         <Link href="/app" className="text-sm font-medium text-[#862fe7] hover:underline">← Dashboard</Link>
         <div className="fluid-enter">
           <h1 className="font-display text-[28px] font-semibold mt-3">Create escrow job</h1>
-          <p className="text-sm text-[#6b7589]">Fund in BOB via Pollar's live ramp → held in Stellar escrow. Milestones protect both sides.</p>
+          <p className="text-sm text-[#6b7589]">Fund in BOB via Pollar&apos;s live ramp → held in Stellar escrow. Milestones protect both sides.</p>
         </div>
 
         <div className="fluid-enter-stagger">

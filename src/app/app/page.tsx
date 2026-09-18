@@ -10,6 +10,7 @@ export default function Dashboard() {
   const [user, setUser] = useState<UserState>(null);
   const [jobs, setJobs] = useState<JobState[]>([]);
   const [filter, setFilter] = useState<"all" | "open" | "funded" | "closed">("all");
+  const [loading, setLoading] = useState(true);
 
   const load = async () => {
     try {
@@ -19,6 +20,8 @@ export default function Dashboard() {
     } catch {
       setUser(null);
       setJobs([]);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -56,6 +59,17 @@ export default function Dashboard() {
     load();
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen grid place-items-center bg-[#f1f5f9] p-6">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 rounded-full border-[3px] border-[#d8e0ea] border-t-[#862fe7] animate-spin" />
+          <p className="text-sm text-[#6b7589]">Loading your escrow…</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!user) {
     return (
       <div className="min-h-screen grid place-items-center bg-[#f1f5f9] p-6">
@@ -91,7 +105,9 @@ export default function Dashboard() {
             <p className="text-sm text-[#6b7589] mt-2 max-w-[560px]">{user.role === "client" ? "Fund once, release on approval. No wire waiting." : "Submit work, get USDC the moment client approves."} • Sponsored fees • Pollar wallet</p>
           </div>
           <div className="flex gap-3">
-            <Link href="/jobs/new"><Button>+ New job</Button></Link>
+            {user.role === "client" && (
+              <Link href="/jobs/new"><Button>+ New job</Button></Link>
+            )}
             <Link href="/wallet"><Button variant="ghost">Wallet</Button></Link>
             {user.role === "client" && (
               <Button variant="mint" onClick={handleSeedDemo}>Seed demo job</Button>
@@ -123,7 +139,9 @@ export default function Dashboard() {
         {filtered.length === 0 ? (
           <Card className="mt-6 text-center py-10">
             <p className="text-sm text-[#6b7589]">No jobs in {filter}.</p>
-            <Link href="/jobs/new" className="inline-block mt-3"><Button size="sm">Create one</Button></Link>
+            {user.role === "client" && (
+              <Link href="/jobs/new" className="inline-block mt-3"><Button size="sm">Create one</Button></Link>
+            )}
           </Card>
         ) : (
           <div className="z-cascade mt-6 fluid-enter-stagger" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.5rem' }}>

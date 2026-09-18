@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { Prisma } from "@prisma/client";
+import { Prisma, MilestoneStatus } from "@prisma/client";
+
+type MilestoneInput = { id?: string; title: string; status: string; order?: number };
 
 export async function POST(req: Request) {
   try {
@@ -9,6 +11,14 @@ export async function POST(req: Request) {
 
     if (!id || !clientId || !title || !description || !amountBOB || !status || !Array.isArray(milestones)) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    }
+
+    // Permission: only clients can own jobs. Freelancers POST here too when they
+    // submit milestones, but the owner (clientId) stays the client — so check the
+    // owner's role, not the caller. Unknown owners fail open to avoid breaking flows.
+    const owner = await prisma.user.findUnique({ where: { id: String(clientId) } });
+    if (owner && owner.role !== "client") {
+      return NextResponse.json({ error: "Only clients can create jobs" }, { status: 403 });
     }
 
     const job = await prisma.job.upsert({
@@ -24,10 +34,10 @@ export async function POST(req: Request) {
         yieldEnabled: yieldEnabled ?? false,
         milestones: {
           deleteMany: {},
-          create: milestones.map((m: any, idx: number) => ({
+          create: milestones.map((m: MilestoneInput, idx: number) => ({
             id: m.id,
             title: m.title,
-            status: m.status,
+            status: m.status as MilestoneStatus,
             order: m.order ?? idx,
           })),
         },
@@ -44,10 +54,10 @@ export async function POST(req: Request) {
         escrowWalletId,
         yieldEnabled: yieldEnabled ?? false,
         milestones: {
-          create: milestones.map((m: any, idx: number) => ({
+          create: milestones.map((m: MilestoneInput, idx: number) => ({
             id: m.id,
             title: m.title,
-            status: m.status,
+            status: m.status as MilestoneStatus,
             order: m.order ?? idx,
           })),
         },
