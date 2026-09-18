@@ -18,7 +18,7 @@ export default function LandingPage() {
               BOB in.<br/>USDC out.<br/><span className="relative">Escrow that moves<span className="absolute -bottom-1 left-0 w-full h-[1px] bg-[var(--color-ember-orange)]" /></span> at Stellar speed.
             </h1>
             <p className="mt-6 text-[18px] leading-[1.25] text-[var(--color-steel)] font-[var(--font-inter)] max-w-[480px]">
-              Fund once in BOB via Pollar's live on-ramp. Hold in non-custodial Stellar escrow. Release in USDC the moment milestones approve. No custodial risk, no week-long settlement.
+              Fund once in BOB via Pollar&apos;s live on-ramp. Hold in non-custodial Stellar escrow. Release in USDC the moment milestones approve. No custodial risk, no week-long settlement.
             </p>
             <div className="mt-10 flex flex-wrap gap-4">
               <Link href="/onboarding">
