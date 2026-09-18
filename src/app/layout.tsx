@@ -1,18 +1,18 @@
 import type { Metadata } from "next";
-import { Bricolage_Grotesque, Geist } from "next/font/google";
+import { Space_Grotesk, Inter } from "next/font/google";
 import "./globals.css";
 import { PollarGate } from "@/components/PollarGate";
 
-const bricolage = Bricolage_Grotesque({
+const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
-  variable: "--font-bricolage-grotesque",
-  weight: ["400", "600", "700", "800"],
+  variable: "--font-polysans",
+  weight: ["400", "500", "600", "700"],
   display: "swap",
 });
 
-const geist = Geist({
+const inter = Inter({
   subsets: ["latin"],
-  variable: "--font-geist",
+  variable: "--font-inter",
   display: "swap",
   weight: ["400", "500", "600", "700"],
 });
@@ -32,11 +32,9 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body className={`${bricolage.variable} ${geist.variable} antialiased`}>
-        <div className="noise-overlay" aria-hidden="true" />
+      <body className={`${spaceGrotesk.variable} ${inter.variable} antialiased`}>
         <PollarGate>{children}</PollarGate>
       </body>
     </html>
   );
 }
-

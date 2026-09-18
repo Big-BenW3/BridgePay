@@ -3,9 +3,6 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { usePollar } from "@pollar/react";
-import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
-import { StatusPill } from "@/components/ui/Badge";
 import { getState, upsertJob, pushLog, type JobState, type UserState } from "@/lib/api";
 
 const USDC_ISSUER = "GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN";
@@ -36,14 +33,21 @@ export default function JobDetail() {
   useEffect(() => { load(); const iv = setInterval(load, 800); return () => clearInterval(iv); }, [load]);
 
   if (loading) return (
-    <div className="min-h-screen grid place-items-center bg-[#f1f5f9] p-6">
+    <div className="min-h-screen grid place-items-center bg-white p-6">
       <div className="flex flex-col items-center gap-3">
-        <div className="w-8 h-8 rounded-full border-[3px] border-[#d8e0ea] border-t-[#862fe7] animate-spin" />
-        <p className="text-sm text-[#6b7589]">Loading your escrow…</p>
+        <div className="w-8 h-8 rounded-full border-[3px] border-[var(--color-mist)] border-t-[var(--color-ember-orange)] animate-spin" />
+        <p className="text-[14px] text-[var(--color-slate)]">Loading your escrow…</p>
       </div>
     </div>
   );
-  if (!job) return <div className="min-h-screen grid place-items-center p-8"><Card>Not found — <Link href="/app" className="text-[#862fe7] underline">back</Link></Card></div>;
+  if (!job) return (
+    <div className="min-h-screen grid place-items-center bg-white p-6">
+      <div className="card text-center max-w-[360px] w-full">
+        <p className="text-[14px] text-[var(--color-steel)]">Not found</p>
+        <Link href="/app" className="inline-block mt-4 link-ember font-polysans">← Back to dashboard</Link>
+      </div>
+    </div>
+  );
 
   // Role gate: the job creator (client) approves + releases but can never submit;
   // anyone else authenticated (freelancer) submits but can never approve.
@@ -86,44 +90,139 @@ export default function JobDetail() {
     } catch (e) { alert(String(e)); setReleasing(false); }
   };
 
+  const usdcAmount = (Number(job.amountBOB) * 0.152).toFixed(2);
+
   return (
-    <div className="min-h-screen bg-[#f1f5f9]">
-      <div className="mx-auto max-w-[880px] px-6 py-6">
-        <Link href="/app" className="text-sm text-[#862fe7] hover:underline">← Dashboard</Link>
-        <div className="mt-4 flex flex-wrap gap-4 items-start justify-between">
-          <div className="fluid-enter">
-            <div className="flex items-center gap-3"><h1 className="font-display text-[22px] font-semibold">{job.title}</h1><StatusPill status={job.status} /></div>
-            <p className="text-sm text-[#6b7589] mt-1 max-w-[560px]">{job.description}</p>
+    <div className="min-h-screen bg-white">
+      <div className="mx-auto max-w-[880px] px-6 py-10">
+        <Link href="/app" className="link-ember font-polysans text-[13px] mb-8 block w-fit">← Dashboard</Link>
+
+        <div className="mb-8">
+          <div className="flex items-center gap-3 flex-wrap mb-2">
+            <h1 className="font-polysans text-[22px] font-medium text-[var(--color-graphite)]">{job.title}</h1>
+            <span className={`status-pill status-${job.status}`}>{job.status}</span>
           </div>
-          <div className="fluid-enter-fast">
-            <Card className="min-w-[280px] p-5 hover">
-              <div className="core p-5">
-                <p className="text-xs font-bold tracking-[0.1em] uppercase text-[#862fe7]">BOB {job.amountBOB} <span className="text-[#6b7589] font-normal">≈ USDC {(Number(job.amountBOB) * 0.152).toFixed(2)}</span></p>
-                {job.status === "open" && <div className="mt-3 space-y-2"><Button size="sm" className="w-full" onClick={() => openRampModal()}>Fund via Ramp →</Button><Button size="sm" variant="ghost" className="w-full" onClick={fundMock}>Mock fund</Button></div>}
-                {job.status === "approved" && isCreator && <div className="mt-3 space-y-2"><input value={dest} onChange={e => setDest(e.target.value)} placeholder="G… freelancer" className="w-full font-mono text-xs border border-[#d8e0ea] rounded-[10px] px-3 py-2" /><Button size="sm" className="w-full" onClick={release} disabled={releasing}>{releasing ? "Releasing…" : "Release →"}</Button></div>}
-                {job.status === "approved" && !isCreator && <p className="mt-3 text-xs text-[#6b7589]">Waiting for the client to release.</p>}
-                {(job.status === "released" || job.status === "closed") && <p className="mt-3 text-xs font-mono bg-[#111827] text-white rounded-full px-3 py-1 truncate">{job.transactions.find(t => t.type === "release")?.id ?? "—"}</p>}
-                {job.status === "funded" && <p className="mt-3 text-xs px-3 py-1 rounded-full bg-[#d6fcf4] text-[#065f46] inline-block">Funds locked</p>}
-              </div>
-            </Card>
-          </div>
+          <p className="text-[15px] leading-relaxed text-[var(--color-steel)] max-w-[560px]">{job.description}</p>
         </div>
 
-        <div className="mt-6 fluid-enter-stagger">
-          <h2 className="text-xs font-bold tracking-[0.1em] uppercase">Milestones</h2>
-          <div className="mt-3 space-y-3">
-            {job.milestones.map((m) => (
-              <Card key={m.id} className="flex items-center justify-between py-4 hover">
-                <div className="core p-4 flex items-center justify-between">
-                  <div><p className="text-sm font-medium">{m.title}</p><StatusPill status={m.status} /></div>
-                  {m.status === "pending" && canSubmit && <Button size="sm" variant="mint" onClick={() => setMilestone(m.id, "submitted")}>Submit</Button>}
-                  {m.status === "pending" && isCreator && <span className="text-xs text-[#6b7589]">Waiting for freelancer…</span>}
-                  {m.status === "submitted" && canApprove && <Button size="sm" onClick={() => setMilestone(m.id, "approved")}>Approve</Button>}
-                  {m.status === "submitted" && !isCreator && <span className="text-xs text-[#6b7589]">Waiting for client approval…</span>}
-                  {m.status === "approved" && <span className="text-xs font-bold text-emerald-600">✓</span>}
+        <div className="grid lg:grid-cols-[1fr_320px] gap-8">
+          {/* Main content */}
+          <div>
+            {/* Escrow panel */}
+            <div className="data-card p-6 mb-8">
+              <p className="font-polysans text-[13px] font-medium tracking-[0.1em] uppercase text-[var(--color-ember-orange)] mb-3">
+                BOB {job.amountBOB} <span className="font-normal text-[var(--color-slate)]">≈ USDC {usdcAmount}</span>
+              </p>
+
+              {job.status === "open" && (
+                <div className="flex flex-wrap gap-3">
+                  <button className="btn-primary" onClick={() => openRampModal()}>Fund via Ramp</button>
+                  <button className="btn-ghost" onClick={fundMock}>Mock fund</button>
                 </div>
-              </Card>
-            ))}
+              )}
+
+              {job.status === "approved" && isCreator && (
+                <div className="flex flex-col sm:flex-row gap-3 mt-4">
+                  <input
+                    value={dest}
+                    onChange={e => setDest(e.target.value)}
+                    placeholder="G… freelancer address"
+                    className="flex-1 font-mono text-[13px]"
+                  />
+                  <button className="btn-primary whitespace-nowrap" onClick={release} disabled={releasing}>
+                    {releasing ? "Releasing…" : "Release"}
+                  </button>
+                </div>
+              )}
+
+              {job.status === "approved" && !isCreator && (
+                <p className="mt-4 text-[13px] text-[var(--color-slate)]">Waiting for the client to release.</p>
+              )}
+
+              {(job.status === "released" || job.status === "closed") && (
+                <p className="mt-4 font-mono text-[13px] bg-[var(--color-graphite)] text-white rounded-full px-3 py-1.5 inline-block truncate max-w-xs">
+                  {job.transactions.find(t => t.type === "release")?.id ?? "—"}
+                </p>
+              )}
+
+              {job.status === "funded" && (
+                <span className="mt-4 inline-block tag tag-brass">Funds locked</span>
+              )}
+            </div>
+
+            {/* Milestones */}
+            <div>
+              <h2 className="font-polysans text-[13px] font-medium tracking-[0.1em] uppercase text-[var(--color-ember-orange)] mb-4">
+                Milestones
+              </h2>
+              <div className="space-y-3">
+                {job.milestones.map((m) => (
+                  <div key={m.id} className="card p-4 flex items-center justify-between">
+                    <div className="flex items-center gap-4 flex-1">
+                      <span className="w-8 h-8 rounded-full bg-[var(--surface-ash-surface)] grid place-items-center font-polysans text-[13px] font-medium text-[var(--color-ember-orange)]">
+                        {m.order + 1}
+                      </span>
+                      <div>
+                        <p className="font-polysans text-[15px] font-medium text-[var(--color-graphite)]">{m.title}</p>
+                        <span className={`status-pill status-${m.status} ml-2`}>{m.status}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {m.status === "pending" && canSubmit && (
+                        <button className="btn-primary text-[13px] px-3 py-1.5" onClick={() => setMilestone(m.id, "submitted")}>Submit</button>
+                      )}
+                      {m.status === "pending" && isCreator && (
+                        <span className="text-[13px] text-[var(--color-slate)]">Waiting for freelancer…</span>
+                      )}
+                      {m.status === "submitted" && canApprove && (
+                        <button className="btn-primary text-[13px] px-3 py-1.5" onClick={() => setMilestone(m.id, "approved")}>Approve</button>
+                      )}
+                      {m.status === "submitted" && !isCreator && (
+                        <span className="text-[13px] text-[var(--color-slate)]">Waiting for client approval…</span>
+                      )}
+                      {m.status === "approved" && (
+                        <span className="text-[13px] font-medium text-[var(--color-ember-orange)]">✓ Approved</span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Sidebar: Escrow info */}
+          <div className="lg:sticky lg:top-24">
+            <div className="card p-6">
+              <p className="font-polysans text-[13px] font-medium tracking-[0.1em] uppercase text-[var(--color-ember-orange)] mb-3">
+                Escrow
+              </p>
+              <p className="font-mono text-[13px] bg-[var(--surface-page-canvas)] border border-[var(--color-mist)] rounded-[var(--radius-cards)] px-3 py-2.5 truncate mb-4">
+                {job.escrowWalletId ?? "—"}
+              </p>
+              <p className="text-[13px] text-[var(--color-slate)] mb-4">
+                Non-custodial Stellar escrow. Funds held until all milestones approve.
+              </p>
+              <div className="border-t border-[var(--color-mist)] pt-4">
+                <p className="font-polysans text-[13px] font-medium tracking-[0.1em] uppercase text-[var(--color-ember-orange)] mb-2">
+                  Transactions
+                </p>
+                <div className="space-y-2 max-h-60 overflow-y-auto">
+                  {job.transactions.length === 0 ? (
+                    <p className="text-[13px] text-[var(--color-slate)]">No transactions yet</p>
+                  ) : (
+                    job.transactions.slice().reverse().map((t) => (
+                      <div key={t.id} className="flex items-center justify-between gap-2 text-[13px]">
+                        <div>
+                          <p className="font-medium text-[var(--color-graphite)]">{t.type === "fund" ? "Funded" : "Released"}</p>
+                          <p className="text-[var(--color-slate)]">{t.amount} {t.currency}</p>
+                        </div>
+                        <span className="font-mono text-[11px] text-[var(--color-slate)] truncate max-w-[120px]">{t.id}</span>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

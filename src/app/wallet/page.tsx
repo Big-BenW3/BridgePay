@@ -2,8 +2,6 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePollar } from "@pollar/react";
-import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
 import { getState, type JobState } from "@/lib/api";
 
 export default function WalletPage() {
@@ -20,47 +18,74 @@ export default function WalletPage() {
 
   if (!isAuthenticated || !wallet) {
     return (
-      <div className="min-h-screen bg-[#f1f5f9] grid place-items-center p-6">
-        <Card className="max-w-[400px] text-center">
-          <p className="text-sm text-[#6b7589]">Connect wallet in <Link href="/onboarding" className="text-[#862fe7] underline">onboarding</Link>.</p>
-        </Card>
+      <div className="min-h-screen grid place-items-center bg-white p-6">
+        <div className="card text-center max-w-[400px] w-full">
+          <p className="text-[14px] text-[var(--color-steel)]">Connect wallet in <Link href="/onboarding" className="link-ember font-polysans">onboarding</Link>.</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#f1f5f9]">
-      <div className="mx-auto max-w-[880px] px-6 py-8">
-        <Link href="/app" className="text-sm text-[#862fe7] hover:underline">← Dashboard</Link>
-        <div className="fluid-enter">
-          <h1 className="font-display text-[26px] font-semibold mt-4">Wallet</h1>
-          <p className="text-sm text-[#6b7589]">Pollar on Stellar • fees sponsored</p>
+    <div className="min-h-screen bg-white">
+      <div className="mx-auto max-w-[880px] px-6 py-10">
+        <Link href="/app" className="link-ember font-polysans text-[13px] mb-8 block w-fit">← Dashboard</Link>
+
+        <div className="mb-10">
+          <h1 className="font-polysans text-[40px] leading-[1.2] tracking-[-0.8px] text-[var(--color-graphite)] font-medium">
+            Wallet
+          </h1>
+          <p className="mt-2 text-[18px] leading-[1.25] text-[var(--color-steel)]">
+            Pollar on Stellar · fees sponsored
+          </p>
         </div>
 
-        <div className="fluid-enter-stagger">
-          <Card className="mt-6 hover">
-            <div className="core p-6">
-              <p className="font-mono text-xs break-all bg-white border border-[#d8e0ea] rounded-[12px] px-3 py-3">{wallet.address}</p>
-              <div className="mt-4 flex gap-3 flex-wrap">
-                {balances.length ? balances.map((b) => <span key={b.code ?? b.asset} className="text-sm font-medium px-3 py-1 rounded-full bg-[#f1f5f9] border border-[#d8e0ea]">{b.code ?? b.asset}: {b.balance}</span>) : <span className="text-xs text-[#6b7589]">Loading balances…</span>}
-                <span className="text-sm px-3 py-1 rounded-full bg-[#ebdafd] text-[#5f259e]">Escrow pending ${pending.toFixed(2)}</span>
-              </div>
-              <div className="flex gap-2 mt-4">
-                <Button size="sm" onClick={() => openWalletBalanceModal()}>Balances</Button>
-                <Button size="sm" variant="ghost" onClick={() => openRampModal()}>Ramp</Button>
-                <Button size="sm" variant="ghost" onClick={() => refreshWalletBalance()}>Refresh</Button>
-                {txHistory && <Button size="sm" variant="mint" onClick={() => openTxHistoryModal()}>History</Button>}
-              </div>
-            </div>
-          </Card>
+        <div className="grid lg:grid-cols-[1fr_320px] gap-8">
+          <div>
+            <div className="data-card p-6 mb-8">
+              <p className="font-mono text-[13px] bg-[var(--surface-page-canvas)] border border-[var(--color-mist)] rounded-[var(--radius-cards)] px-3 py-3 break-all mb-4">
+                {wallet.address}
+              </p>
 
-          <Card className="mt-4 hover">
-            <div className="core p-6">
-              <p className="text-sm font-semibold">Cash-out</p>
-              <p className="text-xs text-[#6b7589] mt-1">USDC → NGN via off-ramp (roadmap). On-ramp BOB→USDC is live.</p>
-              <p className="text-xs text-[#6b7589] mt-3">Honest scope — P2P / Yellow Card → NIBSS is documented, not wired for hackathon.</p>
+              <div className="flex flex-wrap gap-3 mb-4">
+                {balances.length ? balances.map((b) => (
+                  <span key={b.code ?? b.asset} className="tag tag-brass text-[13px] font-medium">
+                    {b.code ?? b.asset}: {b.balance}
+                  </span>
+                )) : (
+                  <span className="text-[13px] text-[var(--color-slate)]">Loading balances…</span>
+                )}
+                <span className="tag tag-ember">Escrow pending ${pending.toFixed(2)}</span>
+              </div>
+
+              <div className="flex flex-wrap gap-3">
+                <button className="btn-primary text-[13px] px-4 py-2" onClick={() => openWalletBalanceModal()}>Balances</button>
+                <button className="btn-ghost text-[13px] px-4 py-2" onClick={() => openRampModal()}>Ramp</button>
+                <button className="btn-ghost text-[13px] px-4 py-2" onClick={() => refreshWalletBalance()}>Refresh</button>
+                {txHistory && <button className="btn-primary text-[13px] px-4 py-2" onClick={() => openTxHistoryModal()}>History</button>}
+              </div>
             </div>
-          </Card>
+
+            <div className="data-card p-6">
+              <p className="font-polysans text-[18px] font-medium text-[var(--color-graphite)] mb-2">Cash-out</p>
+              <p className="text-[14px] text-[var(--color-steel)] mb-2">USDC → NGN via off-ramp (roadmap). On-ramp BOB→USDC is live.</p>
+              <p className="text-[13px] text-[var(--color-slate)]">Honest scope — P2P / Yellow Card → NIBSS is documented, not wired for hackathon.</p>
+            </div>
+          </div>
+
+          <div className="lg:sticky lg:top-24">
+            <div className="data-card p-6">
+              <p className="font-polysans text-[13px] font-medium tracking-[0.1em] uppercase text-[var(--color-ember-orange)] mb-4">
+                Quick actions
+              </p>
+              <div className="space-y-3">
+                <button className="btn-ghost w-full justify-start text-left px-0" onClick={() => openRampModal()}>Add funds (BOB)</button>
+                <button className="btn-ghost w-full justify-start text-left px-0" onClick={() => openWalletBalanceModal()}>View all balances</button>
+                {txHistory && <button className="btn-ghost w-full justify-start text-left px-0" onClick={() => openTxHistoryModal()}>Transaction history</button>}
+                <button className="btn-ghost w-full justify-start text-left px-0" onClick={() => refreshWalletBalance()}>Refresh balance</button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

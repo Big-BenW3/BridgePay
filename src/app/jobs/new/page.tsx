@@ -2,8 +2,6 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
 import { getState, pushLog, upsertJob, type UserState, type JobState } from "@/lib/api";
 
 export default function NewJobPage() {
@@ -40,10 +38,10 @@ export default function NewJobPage() {
 
   if (!ready) {
     return (
-      <div className="min-h-screen grid place-items-center bg-[#f1f5f9] p-6">
+      <div className="min-h-screen grid place-items-center bg-white p-6">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 rounded-full border-[3px] border-[#d8e0ea] border-t-[#862fe7] animate-spin" />
-          <p className="text-sm text-[#6b7589]">Loading…</p>
+          <div className="w-8 h-8 rounded-full border-[3px] border-[var(--color-mist)] border-t-[var(--color-ember-orange)] animate-spin" />
+          <p className="text-[14px] text-[var(--color-slate)]">Loading…</p>
         </div>
       </div>
     );
@@ -51,68 +49,124 @@ export default function NewJobPage() {
 
   if (!user || user.role !== "client") {
     return (
-      <div className="min-h-screen grid place-items-center bg-[#f1f5f9] p-6">
-        <Card className="max-w-[360px] w-full text-center">
-          <h2 className="font-display text-[20px] font-semibold">Clients only</h2>
-          <p className="text-sm text-[#6b7589] mt-2">Freelancers can&apos;t create jobs — they submit milestones on jobs clients post.</p>
-          <Link href="/onboarding" className="inline-block mt-4"><Button>Switch role →</Button></Link>
-        </Card>
+      <div className="min-h-screen grid place-items-center bg-white p-6">
+        <div className="card text-center max-w-[360px] w-full">
+          <h2 className="font-polysans text-[20px] font-medium text-[var(--color-graphite)]">Clients only</h2>
+          <p className="text-[14px] text-[var(--color-steel)] mt-2">Freelancers can&apos;t create jobs — they submit milestones on jobs clients post.</p>
+          <Link href="/onboarding" className="inline-block mt-6"><button className="btn-primary">Switch role</button></Link>
+        </div>
       </div>
     );
   }
 
+  const usdcAmount = (Number(amount) * 0.152).toFixed(2);
+
   return (
-    <div className="min-h-screen bg-[#f1f5f9]">
-      <div className="mx-auto max-w-[720px] px-6 py-8">
-        <Link href="/app" className="text-sm font-medium text-[#862fe7] hover:underline">← Dashboard</Link>
-        <div className="fluid-enter">
-          <h1 className="font-display text-[28px] font-semibold mt-3">Create escrow job</h1>
-          <p className="text-sm text-[#6b7589]">Fund in BOB via Pollar&apos;s live ramp → held in Stellar escrow. Milestones protect both sides.</p>
+    <div className="min-h-screen bg-white">
+      <div className="mx-auto max-w-[720px] px-6 py-12">
+        <Link href="/app" className="link-ember font-polysans text-[13px] mb-8 block w-fit">← Dashboard</Link>
+
+        <div className="mb-10">
+          <h1 className="font-polysans text-[40px] leading-[1.2] tracking-[-0.8px] text-[var(--color-graphite)] font-medium">
+            Create escrow job
+          </h1>
+          <p className="mt-3 text-[18px] leading-[1.25] text-[var(--color-steel)]">
+            Fund in BOB via Pollar&apos;s live ramp → held in Stellar escrow. Milestones protect both sides.
+          </p>
         </div>
 
-        <div className="fluid-enter-stagger">
-          <Card className="mt-6 space-y-5 hover">
-            <div className="core p-6 space-y-5">
-              <div>
-                <label className="text-xs font-bold tracking-wide uppercase text-[#3f4654]">Job title</label>
-                <input value={title} onChange={e => setTitle(e.target.value)} className="mt-1 w-full border border-[#d8e0ea] rounded-[12px] px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#ad6df4]" placeholder="e.g. Brand site build" />
-              </div>
-              <div>
-                <label className="text-xs font-bold tracking-wide uppercase text-[#3f4654]">Description</label>
-                <textarea value={desc} onChange={e => setDesc(e.target.value)} rows={3} className="mt-1 w-full border border-[#d8e0ea] rounded-[12px] px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#ad6df4]" />
-              </div>
-              <div>
-                <label className="text-xs font-bold tracking-wide uppercase text-[#3f4654]">Amount (BOB)</label>
-                <input value={amount} onChange={e => setAmount(e.target.value)} type="number" className="mt-1 w-full border border-[#d8e0ea] rounded-[12px] px-4 py-3 text-sm" />
-                <p className="text-xs text-[#6b7589] mt-1">Settles as USDC to freelancer on release. Conversion simulated at ~0.152 USDC/BOB for demo.</p>
-              </div>
-
-              <div>
-                <label className="text-xs font-bold tracking-wide uppercase text-[#3f4654]">Milestones</label>
-                <div className="mt-1 space-y-2">
-                  {milestones.map((m, i) => (
-                    <div key={i} className="flex items-center gap-2 double-bezel hover" style={{ gridColumn: "span 1" }}>
-                      <div className="core p-3 flex items-center gap-2">
-                        <span className="w-6 h-6 rounded-full bg-[#ebdafd] text-[#5f259e] grid place-items-center text-xs font-bold">{i + 1}</span>
-                        <span className="flex-1">{m}</span>
-                        <button onClick={() => setMilestones(milestones.filter((_, x) => x !== i))} className="text-[#6b7589] hover:text-red-600">✕</button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div className="flex gap-2 mt-2">
-                  <input value={mInput} onChange={e => setMInput(e.target.value)} placeholder="Add milestone" className="flex-1 border border-[#d8e0ea] rounded-[12px] px-3 py-2 text-sm" />
-                  <Button size="sm" variant="ghost" onClick={() => { if (mInput.trim()) { setMilestones([...milestones, mInput.trim()]); setMInput(""); } }}>Add</Button>
-                </div>
-              </div>
-
-              <div className="flex gap-3 pt-2">
-                <Button onClick={create} className="flex-1" magnetic>Create job →</Button>
-                <Link href="/app"><Button variant="ghost" className="flex-1">Cancel</Button></Link>
-              </div>
-              <p className="text-xs text-[#6b7589]">Data model: Job → Milestones → EscrowTransaction (logged). See PRODUCT.md data model.</p>
+        <div className="card">
+          <div className="space-y-6">
+            <div>
+              <label className="font-polysans text-[13px] font-medium tracking-[0.1em] uppercase text-[var(--color-slate)] block mb-2">
+                Job title
+              </label>
+              <input
+                value={title}
+                onChange={e => setTitle(e.target.value)}
+                placeholder="e.g. Brand site build"
+                className="w-full"
+              />
             </div>
-          </Card>
+
+            <div>
+              <label className="font-polysans text-[13px] font-medium tracking-[0.1em] uppercase text-[var(--color-slate)] block mb-2">
+                Description
+              </label>
+              <textarea
+                value={desc}
+                onChange={e => setDesc(e.target.value)}
+                rows={3}
+                className="w-full"
+                placeholder="Describe the work…"
+              />
+            </div>
+
+            <div>
+              <label className="font-polysans text-[13px] font-medium tracking-[0.1em] uppercase text-[var(--color-slate)] block mb-2">
+                Amount (BOB)
+              </label>
+              <input
+                value={amount}
+                onChange={e => setAmount(e.target.value)}
+                type="number"
+                className="w-full"
+              />
+              <p className="text-[13px] text-[var(--color-slate)] mt-2">
+                Settles as USDC to freelancer on release. Conversion simulated at ~0.152 USDC/BOB for demo.
+              </p>
+              <p className="font-polysans text-[18px] font-medium text-[var(--color-graphite)] mt-1">
+                ≈ USDC {usdcAmount}
+              </p>
+            </div>
+
+            <div>
+              <label className="font-polysans text-[13px] font-medium tracking-[0.1em] uppercase text-[var(--color-slate)] block mb-3">
+                Milestones
+              </label>
+              <div className="space-y-2">
+                {milestones.map((m, i) => (
+                  <div key={i} className="card p-3 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <span className="w-7 h-7 rounded-full bg-[var(--surface-ash-surface)] grid place-items-center font-polysans text-[13px] font-medium text-[var(--color-ember-orange)]">
+                        {i + 1}
+                      </span>
+                      <span className="text-[14px] text-[var(--color-graphite)]">{m}</span>
+                    </div>
+                    <button
+                      onClick={() => setMilestones(milestones.filter((_, x) => x !== i))}
+                      className="text-[var(--color-slate)] hover:text-[var(--color-ember-orange)] transition-colors"
+                      aria-label="Remove milestone"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <div className="flex gap-2 mt-3">
+                <input
+                  value={mInput}
+                  onChange={e => setMInput(e.target.value)}
+                  placeholder="Add milestone"
+                  className="flex-1"
+                />
+                <button
+                  className="btn-ghost"
+                  onClick={() => { if (mInput.trim()) { setMilestones([...milestones, mInput.trim()]); setMInput(""); } }}
+                >
+                  Add
+                </button>
+              </div>
+            </div>
+
+            <div className="flex gap-3 pt-4 border-t border-[var(--color-mist)]">
+              <button onClick={create} className="btn-primary flex-1">Create job</button>
+              <Link href="/app"><button className="btn-ghost flex-1">Cancel</button></Link>
+            </div>
+            <p className="text-[13px] text-[var(--color-slate)]">
+              Data model: Job → Milestones → EscrowTransaction (logged). See PRODUCT.md data model.
+            </p>
+          </div>
         </div>
       </div>
     </div>
