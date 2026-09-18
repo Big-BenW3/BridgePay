@@ -51,6 +51,30 @@ export type FullState = {
   logs: LogState[];
 };
 
+export type ProofTx = {
+  id: string;
+  amount: string;
+  currency: string;
+  type: string;
+  timestamp: string;
+  jobId: string;
+  onChain?: {
+    status: "SUCCESS" | "PENDING" | "FAILED" | "mock";
+    ledger?: number;
+    resultCode?: string;
+    message?: string;
+  };
+  explorerUrl?: string;
+};
+
+export type ProofState = {
+  network: string;
+  escrowWalletId: string | null;
+  escrowBalance: { asset: string; balance: string }[] | null;
+  txs: ProofTx[];
+  verifiedAt: string;
+};
+
 async function fetchJson<T>(url: string, options?: RequestInit): Promise<T> {
   const res = await fetch(url, {
     ...options,
@@ -74,4 +98,8 @@ export async function upsertJob(job: JobState): Promise<JobState> {
 
 export async function pushLog(action: string, jobId: string | undefined, payload?: Record<string, unknown>): Promise<LogState> {
   return fetchJson<LogState>("/api/logs", { method: "POST", body: JSON.stringify({ action, jobId, payload }) });
+}
+
+export async function getProof(): Promise<ProofState> {
+  return fetchJson<ProofState>("/api/proof");
 }

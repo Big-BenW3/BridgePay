@@ -106,6 +106,7 @@ export default function ActivityPage() {
                 <button className="btn-primary" onClick={() => { navigator.clipboard.writeText(JSON.stringify(logs, null, 2)); alert("Copied log JSON"); }}>
                   Copy JSON
                 </button>
+                <Link href="/proof"><button className="btn-primary">On-chain proof</button></Link>
                 <button className="btn-ghost" onClick={async () => { await fetch("/api/reset", { method: "POST" }); location.reload(); }}>
                   Reset demo
                 </button>

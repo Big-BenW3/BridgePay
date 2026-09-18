@@ -92,6 +92,7 @@ export default function Dashboard() {
           <div className="flex items-center gap-3">
             <span className="tag tag-brass text-[12px] px-2 py-0.5">{user.role}</span>
             <Link href="/wallet"><button className="btn-ghost text-[14px] px-4 py-2">Wallet</button></Link>
+            <Link href="/proof"><button className="btn-ghost text-[14px] px-4 py-2">Proof</button></Link>
             <Link href="/onboarding"><button className="btn-ghost text-[14px] px-4 py-2">Switch role</button></Link>
           </div>
         </div>
