@@ -1,14 +1,25 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  // Handle scroll effect for navbar
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
-    <header className="sticky top-6 z-30 mx-auto max-w-[1200px] px-6">
+    <header className={`sticky top-6 z-30 mx-auto max-w-[1200px] px-6 transition-all duration-300 ${isScrolled ? "opacity-90" : "opacity-100"}`}>
       <div className="flex items-center justify-between">
-        <Link href="/" className="font-polysans text-[18px] font-medium text-[var(--color-graphite)] tracking-[-0.02em]" aria-label="BridgePay Home">
+        <Link href="/" className="font-polysans text-[18px] font-medium text-[var(--color-graphite)] tracking-[-0.02em] hover:text-[var(--color-ember-orange)] transition-colors duration-200" aria-label="BridgePay Home">
           BridgePay
         </Link>
 
@@ -21,18 +32,20 @@ export function Navbar() {
         </nav>
 
         <div className="flex items-center gap-3">
-          <Link href="/onboarding"><button className="btn-primary">Start escrow</button></Link>
+          <Link href="/onboarding">
+            <button className="btn-primary hidden md:block">Start escrow</button>
+          </Link>
 
           <button
-            className="md:hidden flex items-center justify-center w-10 h-10 rounded-full bg-[var(--surface-ash-surface)] hover:bg-[var(--color-fog)] transition-colors"
+            className="md:hidden flex items-center justify-center w-10 h-10 rounded-full bg-[var(--surface-ash-surface)] hover:bg-[var(--color-fog)] transition-colors duration-200"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-expanded={mobileOpen}
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
             aria-controls="mobile-menu"
           >
-            <span className="hamburger-line block w-5 h-0.5 bg-[var(--color-graphite)] mb-1.5 transition-all duration-300 ease-out" />
-            <span className="hamburger-line block w-5 h-0.5 bg-[var(--color-graphite)] mb-1.5 transition-all duration-300 ease-out" />
-            <span className="hamburger-line block w-5 h-0.5 bg-[var(--color-graphite)] transition-all duration-300 ease-out" />
+            <span className="hamburger-line block w-5 h-0.5 bg-[var(--color-graphite)] mb-1.5 transition-all duration-300 ease-out" style={{ transform: mobileOpen ? "rotate(45deg) translate(4px, 4px)" : "none" }} />
+            <span className="hamburger-line block w-5 h-0.5 bg-[var(--color-graphite)] mb-1.5 transition-all duration-300 ease-out" style={{ opacity: mobileOpen ? "0" : "1" }} />
+            <span className="hamburger-line block w-5 h-0.5 bg-[var(--color-graphite)] transition-all duration-300 ease-out" style={{ transform: mobileOpen ? "rotate(-45deg) translate(4px, -4px)" : "none" }} />
           </button>
         </div>
       </div>

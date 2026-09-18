@@ -136,6 +136,158 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+/* ========================================
+   KEYFRAME ANIMATIONS
+   ======================================== */
+
+/* Fade in from bottom */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Fade in */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Fade in from left */
+@keyframes fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Fade in from right */
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Scale in */
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Slide up */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Draw line (for charts) */
+@keyframes drawLine {
+  from {
+    stroke-dashoffset: 1000;
+    opacity: 0;
+  }
+  to {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+/* Draw circle (for progress rings) */
+@keyframes drawCircle {
+  from {
+    stroke-dashoffset: 1000;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Pulse subtle */
+@keyframes pulseSubtle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+/* ========================================
+   ANIMATION UTILITY CLASSES
+   ======================================== */
+
+/* Base animation utilities */
+.animate-fade-in-up {
+  animation: fadeInUp 600ms ease-out forwards;
+}
+
+.animate-fade-in {
+  animation: fadeIn 400ms ease-out forwards;
+}
+
+.animate-fade-in-left {
+  animation: fadeInLeft 500ms ease-out forwards;
+}
+
+.animate-fade-in-right {
+  animation: fadeInRight 500ms ease-out forwards;
+}
+
+.animate-scale-in {
+  animation: scaleIn 400ms ease-out forwards;
+}
+
+.animate-slide-up {
+  animation: slideUp 400ms ease-out forwards;
+}
+
+/* Delay utilities */
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-400 { animation-delay: 400ms; }
+.delay-500 { animation-delay: 500ms; }
+.delay-600 { animation-delay: 600ms; }
+
+/* Stagger children animation */
+.stagger-children > * {
+  opacity: 0;
+  animation: fadeInUp 400ms ease-out forwards;
+}
+.stagger-children > *:nth-child(1) { animation-delay: 100ms; }
+.stagger-children > *:nth-child(2) { animation-delay: 200ms; }
+.stagger-children > *:nth-child(3) { animation-delay: 300ms; }
+.stagger-children > *:nth-child(4) { animation-delay: 400ms; }
+.stagger-children > *:nth-child(5) { animation-delay: 500ms; }
+.stagger-children > *:nth-child(6) { animation-delay: 600ms; }
+
+/* Will-change for performance */
+.will-change-transform { will-change: transform; }
+.will-change-opacity { will-change: opacity; }
+.will-change-both { will-change: transform, opacity; }
+
 /* PolySans for headings and display */
 .font-polysans { font-family: var(--font-polysans); font-weight: 400; letter-spacing: -0.02em; }
 
@@ -152,11 +304,37 @@ body {
   padding-bottom: var(--card-padding);
 }
 
-/* Data Dashboard Card — white surface, 20px radius */
+/* Data Dashboard Card — white surface, 20px radius, NO SHADOW */
 .data-card {
   background: var(--surface-page-canvas);
   border-radius: var(--radius-2xl);
   padding: var(--card-padding);
+  /* Critical: NO SHADOW per Ventriloc design */
+  box-shadow: none;
+}
+
+/* Chart animation classes */
+.chart-line {
+  animation: drawLine 1s ease-out forwards;
+}
+
+.chart-line-secondary {
+  animation: drawLine 1s ease-out 0.3s forwards;
+}
+
+.chart-circle {
+  animation: drawCircle 1s ease-out forwards;
+}
+
+/* Animated stat counter */
+.stat-counter {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Chart container styling */
+.chart-container {
+  position: relative;
+  overflow: hidden;
 }
 
 /* Primary CTA Button — Graphite fill, 0px radius, PolySans 16px */
@@ -171,10 +349,12 @@ body {
   border-radius: var(--radius-buttons);
   border: none;
   cursor: pointer;
-  transition: opacity 160ms ease-out;
+  transition: opacity 160ms ease-out, transform 160ms ease-out;
+  will-change: transform, opacity;
 }
 .btn-primary:hover { opacity: 0.85; }
 .btn-primary:active { transform: scale(0.98); }
+.btn-primary:focus-visible { outline: 2px solid var(--color-ember-orange); outline-offset: 2px; }
 
 /* Ghost Outlined Button — Transparent, 1px Graphite border, 0px radius */
 .btn-ghost {
@@ -188,16 +368,36 @@ body {
   border-radius: var(--radius-buttons);
   border: 1px solid var(--color-graphite);
   cursor: pointer;
-  transition: background-color 160ms ease-out, color 160ms ease-out;
+  transition: background-color 160ms ease-out, color 160ms ease-out, transform 160ms ease-out;
+  will-change: background-color, color, transform;
 }
 .btn-ghost:hover { background: var(--color-graphite); color: var(--color-canvas-white); }
 .btn-ghost:active { transform: scale(0.98); }
+.btn-ghost:focus-visible { outline: 2px solid var(--color-ember-orange); outline-offset: 2px; }
+
+/* Button disabled states */
+.btn-primary:disabled, .btn-ghost:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Button loading state */
+.btn-primary.loading, .btn-ghost.loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
 
 /* Navigation Pill Container — Ash background, 200px radius */
 .nav-pill {
   background: var(--surface-ash-surface);
   border-radius: var(--radius-nav-pills);
   padding: 8px 18px;
+  transition: background-color 160ms ease-out;
+}
+
+.nav-pill:hover {
+  background: var(--color-fog);
 }
 
 /* Nav Link — Graphite, PolySans 16px, no underline */
@@ -209,8 +409,11 @@ body {
   letter-spacing: -0.02em;
   text-decoration: none;
   transition: color 160ms ease-out;
+  position: relative;
+  padding: 4px 0;
 }
 .nav-link:hover { color: var(--color-ember-orange); }
+.nav-link:focus-visible { outline: 2px solid var(--color-ember-orange); outline-offset: 2px; }
 
 /* Language Toggle — Slate, PolySans 16px */
 .lang-toggle {
@@ -220,6 +423,66 @@ body {
   font-weight: 400;
   letter-spacing: -0.02em;
   text-decoration: none;
+  transition: color 160ms ease-out;
+  padding: 4px 8px;
+}
+.lang-toggle:hover { color: var(--color-graphite); }
+
+/* Link with Orange Underline — improved with animation */
+.link-ember {
+  color: inherit;
+  text-decoration: none;
+  position: relative;
+  transition: color 160ms ease-out;
+}
+
+.link-ember::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--color-ember-orange);
+  transition: background-color 160ms ease-out, transform 160ms ease-out;
+}
+
+.link-ember:hover {
+  color: var(--color-ember-orange);
+}
+
+.link-ember:hover::after {
+  background: var(--color-brass);
+}
+
+/* Underline reveal animation for links */
+.link-underline-reveal {
+  position: relative;
+  text-decoration: none;
+}
+
+.link-underline-reveal::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--color-ember-orange);
+  transition: width 200ms ease-out;
+}
+
+.link-underline-reveal:hover::after {
+  width: 100%;
+}
+
+/* Tag hover effects */
+.tag {
+  transition: transform 160ms ease-out, box-shadow 160ms ease-out;
+}
+
+.tag:hover {
+  transform: translateY(-1px);
 }
 
 /* Link with Orange Underline — Ember Orange underline offset */
@@ -300,10 +563,161 @@ input, textarea, select {
   font-family: var(--font-inter);
   font-size: 15px;
   color: var(--color-graphite);
-  transition: border-color 160ms ease-out;
+  transition: border-color 160ms ease-out, box-shadow 160ms ease-out;
 }
 input:focus, textarea:focus, select:focus {
   border-color: var(--color-graphite);
   outline: none;
+  box-shadow: 0 0 0 3px rgba(32, 32, 32, 0.05);
 }
 input::placeholder, textarea::placeholder { color: var(--color-slate); }
+
+/* ========================================
+   SCROLL-REVEAL ANIMATIONS
+   ======================================== */
+
+/* Reveal on scroll - use with Intersection Observer */
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 600ms ease-out, transform 600ms ease-out;
+}
+
+.reveal-on-scroll.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Staggered reveal for grids */
+.stagger-item {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 400ms ease-out, transform 400ms ease-out;
+}
+
+.stagger-item.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Hero-specific animations */
+.hero-headline {
+  animation: fadeInUp 600ms ease-out forwards;
+}
+
+.hero-subtext {
+  animation: fadeInUp 600ms ease-out 150ms forwards;
+}
+
+.hero-cta {
+  animation: fadeInUp 600ms ease-out 300ms forwards;
+}
+
+.hero-cards {
+  animation: fadeInUp 600ms ease-out 450ms forwards;
+}
+
+/* ========================================
+   SECTION STYLES
+   ======================================== */
+
+/* Hero section - full height with proper spacing */
+.hero-section {
+  min-height: calc(100vh - 120px);
+}
+
+/* Section with ash background */
+.section-ash {
+  background: var(--surface-ash-surface);
+}
+
+/* Section with ivory background */
+.section-ivory {
+  background: var(--surface-ivory-surface);
+}
+
+/* Section with fog background */
+.section-fog {
+  background: var(--surface-fog-surface);
+}
+
+/* Partner logo strip styling */
+.partner-strip {
+  border: none;
+  background: var(--surface-page-canvas);
+}
+
+.partner-logos {
+  opacity: 0.6;
+  transition: opacity 160ms ease-out;
+}
+
+.partner-logos:hover {
+  opacity: 1;
+}
+
+/* Footer styling */
+.footer-link {
+  transition: color 160ms ease-out;
+}
+
+.footer-link:hover {
+  color: var(--color-ember-orange);
+}
+
+/* Code block styling */
+.code-inline {
+  background: var(--color-fog);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: var(--font-inter);
+  font-size: 0.9em;
+}
+
+/* ========================================
+   RESPONSIVE TYPOGRAPHY
+   ======================================== */
+
+@media (max-width: 768px) {
+  /* Scale down headline on mobile */
+  .responsive-display {
+    font-size: 40px !important;
+    line-height: 1.1 !important;
+    letter-spacing: -0.8px !important;
+  }
+  
+  .responsive-heading-lg {
+    font-size: 32px !important;
+    line-height: 1.19 !important;
+    letter-spacing: -0.64px !important;
+  }
+  
+  .responsive-subheading {
+    font-size: 16px !important;
+  }
+  
+  /* Reduce card padding on mobile */
+  .mobile-padding {
+    padding: var(--spacing-20) !important;
+  }
+}
+
+/* ========================================
+   PRINT STYLES
+   ======================================== */
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  body {
+    background: white;
+    color: black;
+  }
+  
+  .data-card, .card, .asymmetric-card {
+    box-shadow: none;
+    border: 1px solid #ddd;
+  }
+}
