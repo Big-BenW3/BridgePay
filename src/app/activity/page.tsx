@@ -8,16 +8,28 @@ import { getState, type JobState, type LogState } from "@/lib/api";
 export default function ActivityPage() {
   const [logs, setLogs] = useState<LogState[]>([]);
   const [jobs, setJobs] = useState<JobState[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const load = async () => {
     try {
       const state = await getState();
       setLogs(state.logs);
       setJobs(state.jobs);
-    } catch { setLogs([]); setJobs([]); }
+    } catch { setLogs([]); setJobs([]); } finally { setLoading(false); }
   };
 
   useEffect(() => { load(); const iv = setInterval(load, 800); return () => clearInterval(iv); }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen grid place-items-center bg-white p-6">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 rounded-full border-[3px] border-[#d8e0ea] border-t-[#862fe7] animate-spin" />
+          <p className="text-sm text-[#6b7589]">Loading audit log…</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white">
