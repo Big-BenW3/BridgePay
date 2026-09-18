@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -19,8 +20,8 @@ export function Navbar() {
   return (
     <header className={`sticky top-6 z-30 mx-auto max-w-[1200px] px-6 transition-all duration-300 ${isScrolled ? "opacity-90" : "opacity-100"}`}>
       <div className="flex items-center justify-between">
-        <Link href="/" className="font-polysans text-[18px] font-medium text-[var(--color-graphite)] tracking-[-0.02em] hover:text-[var(--color-ember-orange)] transition-colors duration-200" aria-label="BridgePay Home">
-          BridgePay
+        <Link href="/" className="flex items-center gap-2" aria-label="BridgePay Home">
+          <Image src="/bridgepay-logo.png" alt="BridgePay" width={1408} height={676} className="h-8 w-auto" priority />
         </Link>
 
         <nav className="nav-pill flex items-center gap-4 hidden md:flex" aria-label="Main navigation">

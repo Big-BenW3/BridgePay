@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { getState, upsertJob, pushLog, type JobState, type UserState } from "@/lib/api";
 
 export default function Dashboard() {
@@ -88,7 +89,9 @@ export default function Dashboard() {
     <div className="min-h-screen bg-white">
       <header className="sticky top-0 z-10 border-b border-[var(--color-mist)] bg-white/80 backdrop-blur-sm">
         <div className="mx-auto max-w-[1200px] px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="font-polysans text-[18px] font-medium text-[var(--color-graphite)]">BridgePay</Link>
+          <Link href="/" className="flex items-center gap-2">
+            <Image src="/bridgepay-logo.png" alt="BridgePay" width={1408} height={676} className="h-8 w-auto" priority />
+          </Link>
           <div className="flex items-center gap-3">
             <span className="tag tag-brass text-[12px] px-2 py-0.5">{user.role}</span>
             <Link href="/wallet"><button className="btn-ghost text-[14px] px-4 py-2">Wallet</button></Link>
